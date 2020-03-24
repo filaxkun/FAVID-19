@@ -25,28 +25,36 @@ try:
         df_list.append( df_deaths )
 except:
     print('No INFO, printing everything (conf, recov, deaths)')
-    df_conf   = pd.read_csv(mycsv.confirmed)
-    df_recov  = pd.read_csv(mycsv.recovered)
-    df_deaths = pd.read_csv(mycsv.deaths)
+    # df = [ pd.DF, label ]
+    df_conf   = ( pd.read_csv(mycsv.confirmed), 'Confirmed' )
+    df_recov  = ( pd.read_csv(mycsv.recovered), 'Recovered' )
+    df_deaths = ( pd.read_csv(mycsv.deaths)   , 'Deaths'    )
     df_list   = [ df_conf, df_recov, df_deaths ]
 
 plt.figure()
+labels = []
 
 # Filter for Country
-for df in df_list:
+for item in df_list:
     try:
         country = sys.argv[1]
     except:
         country = 'Italy'
 
-    df = df[df['Country/Region'] == country]
+    item_df    = item[0]
+    item_label = item[1]
     # Manipulation to get mono-row DF
+    df = item_df[item_df['Country/Region'] == country]
     df.set_index( 'Country/Region', inplace=True )
-    df.drop(['Lat','Long','Province/State'], axis=1, inplace=True )
-    print( df )
+    #df.drop(['Lat','Long','Province/State'], axis=1, inplace=True )
+    df = df.drop(['Lat','Long','Province/State'], axis=1)
+    print( item_label, df )
     # Plotting
-    plt.plot( df.T['Italy'] )
+    plt.plot( df.T[country] )
+    labels.append( item_label )
 
+
+plt.legend( labels )
 plt.show()
 
 def load_csv(csv):
