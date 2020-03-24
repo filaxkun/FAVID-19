@@ -1,23 +1,52 @@
+import sys
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import mycsv #add location to your csv
 
-df_conf = pd.read_csv(mycsv.confirmed)
+if ( len(sys.argv) < 2 ):
+    print('python3 favid.py <COUNTRY> <INFO>')
+    print(' <COUNTRY> : Italy, France, ...h')
+    print(' <INFO>    : conf / recov / death')
+    exit()
 
-print(df_conf)
+df_list = []
 
-# Filter for Italy
-df_conf = df_conf[df_conf['Country/Region'] == 'Italy']
+try:
+    info = sys.argv[2]
+    if ( info == 'conf' or info == 'confirmed' ):
+        df_conf = pd.read_csv(mycsv.confirmed)
+        df_list.append( df_conf )
+    elif ( info == 'recov' or info == 'recovered' ):
+        df_recov = pd.read_csv(mycsv.recovered)
+        df_list.append( df_recov )
+    elif ( info == 'death' ):
+        df_deaths = pd.read_csv(mycsv.deaths)
+        df_list.append( df_deaths )
+except:
+    print('No INFO, printing everything (conf, recov, deaths)')
+    df_conf   = pd.read_csv(mycsv.confirmed)
+    df_recov  = pd.read_csv(mycsv.recovered)
+    df_deaths = pd.read_csv(mycsv.deaths)
+    df_list   = [ df_conf, df_recov, df_deaths ]
 
-df_conf.set_index( 'Country/Region' , inplace = True)
-df_conf = df_conf.drop(['Lat','Long','Province/State'], axis=1)
+plt.figure()
 
+# Filter for Country
+for df in df_list:
+    try:
+        country = sys.argv[1]
+    except:
+        country = 'Italy'
 
-df_conf_trans = df_conf.T
+    df = df[df['Country/Region'] == country]
+    # Manipulation to get mono-row DF
+    df.set_index( 'Country/Region', inplace=True )
+    df.drop(['Lat','Long','Province/State'], axis=1, inplace=True )
+    print( df )
+    # Plotting
+    plt.plot( df.T['Italy'] )
 
-#df_conf
-df_conf_trans.plot()
 plt.show()
 
 def load_csv(csv):
