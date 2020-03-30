@@ -15,13 +15,13 @@ df_list = []
 try:
     info = sys.argv[2]
     if ( info == 'conf' or info == 'confirmed' ):
-        df_conf = pd.read_csv(mycsv.confirmed)
+        df_conf   = ( pd.read_csv(mycsv.confirmed), 'Confirmed' )
         df_list.append( df_conf )
     elif ( info == 'recov' or info == 'recovered' ):
-        df_recov = pd.read_csv(mycsv.recovered)
+        df_recov  = ( pd.read_csv(mycsv.recovered), 'Recovered' )
         df_list.append( df_recov )
     elif ( info == 'death' ):
-        df_deaths = pd.read_csv(mycsv.deaths)
+        df_deaths = ( pd.read_csv(mycsv.deaths)   , 'Deaths'    )
         df_list.append( df_deaths )
 except:
     print('No INFO, printing everything (conf, recov, deaths)')
@@ -44,12 +44,14 @@ for item in df_list:
     item_df    = item[0]
     item_label = item[1]
     # Manipulation to get mono-row DF
+    print(item)
     df = item_df[item_df['Country/Region'] == country]
     df.set_index( 'Country/Region', inplace=True )
     #df.drop(['Lat','Long','Province/State'], axis=1, inplace=True )
     df = df.drop(['Lat','Long','Province/State'], axis=1)
     print( item_label, df )
     # Plotting
+    #plt.bar( x = df.T.index, height = df.T[country] )
     plt.plot( df.T[country] )
     labels.append( item_label )
 
